@@ -1,0 +1,2078 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Чек-лист контроля качества ВУ — WowSpeak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --purple-dark: #4A2A9E;
+    --purple-main: #6C3DE0;
+    --purple-mid: #7A5BC9;
+    --purple-soft: #B49EE8;
+    --purple-bg: #F8F5FF;
+    --purple-border: #E0D5F5;
+    --purple-light: #EFE7FB;
+    --green: #2E9E63;
+    --yellow: #E8B43A;
+    --red: #C8453A;
+    --gray-text: #444;
+    --gray-soft: #777;
+    --gray-bg: #fafafa;
+    --shadow: 0 2px 12px rgba(108, 61, 224, 0.08);
+    --shadow-strong: 0 4px 20px rgba(108, 61, 224, 0.15);
+  }
+
+  body {
+    font-family: 'Nunito', -apple-system, sans-serif;
+    background: var(--purple-bg);
+    color: var(--gray-text);
+    font-size: 15px;
+    line-height: 1.5;
+    padding-bottom: 60px;
+  }
+
+  /* === STICKY HEADER === */
+  .top-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: white;
+    border-bottom: 1px solid var(--purple-border);
+    box-shadow: var(--shadow);
+  }
+  .top-bar-inner {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .top-bar-title {
+    font-weight: 800;
+    font-size: 17px;
+    color: var(--purple-dark);
+  }
+  .top-bar-title small {
+    display: block;
+    font-weight: 400;
+    font-size: 12px;
+    color: var(--gray-soft);
+    margin-top: 1px;
+  }
+  .top-bar-score {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .score-display {
+    background: var(--purple-light);
+    border-radius: 999px;
+    padding: 8px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .score-num {
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--purple-dark);
+  }
+  .score-pct {
+    font-weight: 700;
+    font-size: 14px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: white;
+    color: var(--purple-main);
+  }
+  .verdict-pill {
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .verdict-empty { background: #eee; color: #888; }
+  .verdict-excellent { background: #DEF5E6; color: var(--green); }
+  .verdict-ok { background: #FFF3D4; color: #A8842A; }
+  .verdict-fail { background: #FAE0DD; color: var(--red); }
+
+  /* === MAIN === */
+  main {
+    max-width: 920px;
+    margin: 32px auto 0;
+    padding: 0 24px;
+  }
+
+  h1.page-title {
+    font-size: 30px;
+    font-weight: 800;
+    color: var(--purple-dark);
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+  .page-subtitle {
+    color: var(--gray-soft);
+    font-size: 14px;
+    margin-bottom: 28px;
+  }
+
+  /* === META FORM === */
+  .meta-card {
+    background: white;
+    border: 1px solid var(--purple-border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin-bottom: 28px;
+    box-shadow: var(--shadow);
+  }
+  .meta-card h2 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--purple-main);
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .meta-grid .full { grid-column: 1 / -1; }
+  .meta-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gray-soft);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .meta-field input,
+  .meta-field select,
+  .meta-field textarea {
+    width: 100%;
+    border: 1px solid var(--purple-border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-family: inherit;
+    font-size: 14px;
+    background: var(--gray-bg);
+    color: var(--gray-text);
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .meta-field input:focus,
+  .meta-field select:focus,
+  .meta-field textarea:focus {
+    outline: none;
+    border-color: var(--purple-main);
+    background: white;
+  }
+
+  /* === STAGE CARD === */
+  .stage {
+    background: white;
+    border: 1px solid var(--purple-border);
+    border-radius: 14px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .stage-header {
+    background: linear-gradient(135deg, var(--purple-main), var(--purple-mid));
+    color: white;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .stage-header h3 {
+    font-size: 16px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .stage-num {
+    background: rgba(255, 255, 255, 0.22);
+    border-radius: 8px;
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+  }
+  .stage-subscore {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .stage-body {
+    padding: 6px 0;
+  }
+  .criterion {
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--purple-border);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 16px;
+    align-items: start;
+  }
+  .criterion:last-child { border-bottom: none; }
+  .criterion-text {
+    font-size: 14px;
+    color: var(--gray-text);
+    line-height: 1.45;
+  }
+  .criterion-text .num {
+    color: var(--purple-mid);
+    font-weight: 800;
+    margin-right: 6px;
+  }
+  .criterion-comment-toggle {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--purple-main);
+    cursor: pointer;
+    border: none;
+    background: none;
+    padding: 0;
+    font-family: inherit;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 2px;
+  }
+  .criterion-comment-toggle:hover { color: var(--purple-dark); }
+  .criterion-comment {
+    grid-column: 1 / -1;
+    margin-top: 4px;
+    display: none;
+  }
+  .criterion-comment.open { display: block; }
+  .criterion-comment textarea {
+    width: 100%;
+    border: 1px solid var(--purple-border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-family: inherit;
+    font-size: 13px;
+    min-height: 50px;
+    resize: vertical;
+    background: var(--gray-bg);
+    color: var(--gray-text);
+  }
+  .criterion-comment textarea:focus {
+    outline: none;
+    border-color: var(--purple-main);
+    background: white;
+  }
+
+  /* === SCORE BUTTONS === */
+  .score-buttons {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .score-btn {
+    height: 36px;
+    min-width: 44px;
+    padding: 0 10px;
+    border-radius: 8px;
+    border: 1.5px solid var(--purple-border);
+    background: white;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--gray-soft);
+    cursor: pointer;
+    transition: all 0.12s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+  .score-btn:hover { border-color: var(--purple-mid); transform: translateY(-1px); }
+  .score-btn.btn-yes:hover { border-color: var(--green); color: var(--green); }
+  .score-btn.btn-no:hover { border-color: var(--red); color: var(--red); }
+  .score-btn.btn-yes.active-1 { background: var(--green); border-color: var(--green); color: white; }
+  .score-btn.btn-no.active-0 { background: var(--red); border-color: var(--red); color: white; }
+  .score-btn-na {
+    font-size: 12px;
+  }
+  .score-btn-na.active-na {
+    background: var(--purple-soft);
+    border-color: var(--purple-soft);
+    color: white;
+  }
+
+  /* === FORBIDDEN SECTION === */
+  .forbidden {
+    background: white;
+    border: 1.5px solid var(--red);
+    border-radius: 14px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .forbidden-header {
+    background: var(--red);
+    color: white;
+    padding: 14px 24px;
+  }
+  .forbidden-header h3 {
+    font-size: 15px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .forbidden-header small {
+    display: block;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 12px;
+    margin-top: 4px;
+    opacity: 0.95;
+  }
+  .forbidden-body {
+    padding: 8px 0;
+  }
+  .forbidden-item {
+    padding: 12px 24px;
+    border-bottom: 1px solid #f5dad6;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .forbidden-item:last-child { border-bottom: none; }
+  .forbidden-item:hover { background: #fff8f7; }
+  .forbidden-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-top: 1px;
+    accent-color: var(--red);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .forbidden-item span {
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  .forbidden-item.checked span { color: var(--red); font-weight: 700; }
+
+  /* === RECOMMENDATIONS === */
+  .recs-card {
+    background: white;
+    border: 1px solid var(--purple-border);
+    border-radius: 14px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .recs-header {
+    background: linear-gradient(135deg, #FFF8E6, #FFEFC2);
+    padding: 18px 24px;
+    border-bottom: 1px solid #F0D580;
+  }
+  .recs-header h2 {
+    font-size: 16px;
+    font-weight: 800;
+    color: #8B6914;
+    margin-bottom: 4px;
+  }
+  .recs-subtitle {
+    font-size: 13px;
+    color: #A8842A;
+    line-height: 1.4;
+  }
+  .recs-body {
+    padding: 8px 0;
+  }
+  .recs-empty {
+    padding: 24px;
+    text-align: center;
+    color: var(--gray-soft);
+    font-style: italic;
+    font-size: 14px;
+  }
+  .rec-stage-title {
+    padding: 14px 24px 6px;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--purple-main);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .rec-item {
+    padding: 12px 24px 16px;
+    border-bottom: 1px solid var(--purple-bg);
+  }
+  .rec-item:last-child { border-bottom: none; }
+  .rec-criterion {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--gray-text);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .rec-cross {
+    color: var(--red);
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .rec-text {
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--gray-text);
+    padding-left: 22px;
+  }
+  .rec-comment-from-reviewer {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: var(--purple-bg);
+    border-left: 3px solid var(--purple-main);
+    border-radius: 4px;
+    font-size: 13px;
+    color: var(--gray-text);
+    font-style: italic;
+    margin-left: 22px;
+  }
+  .rec-comment-from-reviewer strong {
+    font-style: normal;
+    color: var(--purple-main);
+    font-weight: 700;
+  }
+
+  /* === REPORT MODAL === */
+  .report-modal {
+    position: fixed;
+    inset: 0;
+    background: #f3eef9;
+    z-index: 500;
+    overflow-y: auto;
+    display: none;
+  }
+  .report-modal.open { display: block; }
+  body.report-open { overflow: hidden; }
+
+  .report-modal-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: white;
+    border-bottom: 1px solid var(--purple-border);
+    box-shadow: 0 2px 8px rgba(108, 61, 224, 0.08);
+  }
+  .report-toolbar-inner {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 12px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .report-toolbar-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .report-modal-body {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 40px 28px 80px;
+  }
+
+  /* === REPORT DOCUMENT === */
+  .report-doc {
+    background: white;
+    border-radius: 16px;
+    padding: 56px 64px;
+    box-shadow: 0 8px 40px rgba(108, 61, 224, 0.12);
+  }
+
+  .report-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--purple-dark);
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  .report-subtitle {
+    font-size: 14px;
+    color: var(--gray-soft);
+    margin-bottom: 28px;
+  }
+
+  .report-meta {
+    background: var(--purple-bg);
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 24px;
+  }
+  .report-meta div {
+    font-size: 14px;
+    color: var(--gray-text);
+  }
+  .report-meta strong {
+    color: var(--purple-main);
+    font-weight: 700;
+    margin-right: 8px;
+  }
+  .report-meta .full { grid-column: 1 / -1; }
+  .report-meta a { color: var(--purple-main); word-break: break-all; }
+
+  .score-banner {
+    border-radius: 12px;
+    padding: 22px 26px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    border-left: 6px solid;
+  }
+  .score-banner.banner-excellent {
+    background: #E8F7EE;
+    border-left-color: var(--green);
+  }
+  .score-banner.banner-ok {
+    background: #FFF8E1;
+    border-left-color: var(--yellow);
+  }
+  .score-banner.banner-fail {
+    background: #FEEBE7;
+    border-left-color: var(--red);
+  }
+  .score-pct-big {
+    font-size: 38px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--purple-dark);
+  }
+  .banner-excellent .score-pct-big { color: var(--green); }
+  .banner-ok .score-pct-big { color: #A8842A; }
+  .banner-fail .score-pct-big { color: var(--red); }
+  .score-verdict-text {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--gray-text);
+    line-height: 1.35;
+  }
+
+  .report-intro {
+    font-size: 14px;
+    color: var(--gray-soft);
+    line-height: 1.6;
+    margin-bottom: 32px;
+    padding: 0 4px;
+  }
+
+  .report-section {
+    margin-bottom: 32px;
+  }
+  .report-section:last-child { margin-bottom: 0; }
+
+  .section-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--purple-dark);
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--purple-light);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title.title-good { color: var(--green); border-bottom-color: #C8EBD3; }
+  .section-title.title-growth { color: var(--purple-main); }
+  .section-title.title-critical { color: var(--red); border-bottom-color: #F5C9C3; }
+  .section-title.title-curator { color: var(--purple-main); }
+
+  .achievement-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .achievement-list li {
+    padding: 10px 14px;
+    background: #F0FBF4;
+    border-left: 3px solid var(--green);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: var(--gray-text);
+  }
+  .achievement-list li:last-child { margin-bottom: 0; }
+
+  .miss-block {
+    background: var(--purple-bg);
+    border-radius: 12px;
+    padding: 22px 24px;
+    margin-bottom: 18px;
+    border-left: 4px solid var(--purple-mid);
+  }
+  .miss-block:last-child { margin-bottom: 0; }
+  .miss-stage-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--purple-main);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 14px;
+  }
+  .miss-row {
+    margin-bottom: 14px;
+  }
+  .miss-row:last-child { margin-bottom: 0; }
+  .miss-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 6px;
+    color: var(--gray-soft);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .miss-label.label-issue { color: var(--red); }
+  .miss-label.label-rec { color: var(--green); }
+  .miss-label.label-note { color: var(--purple-main); }
+  .miss-text {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--gray-text);
+  }
+  .miss-text-issue {
+    font-weight: 700;
+    color: var(--gray-text);
+  }
+  .miss-comment-block {
+    margin-top: 14px;
+    padding: 12px 16px;
+    background: white;
+    border-radius: 8px;
+    border-left: 3px solid var(--purple-main);
+  }
+
+  .critical-block {
+    background: #FEEBE7;
+    border-radius: 10px;
+    padding: 18px 22px;
+    border-left: 4px solid var(--red);
+  }
+  .critical-block .critical-intro {
+    font-size: 13px;
+    color: #8C2A22;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .critical-block ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .critical-block li {
+    padding: 8px 0;
+    font-size: 14px;
+    color: #8C2A22;
+    font-weight: 600;
+    border-top: 1px solid #F5C9C3;
+  }
+  .critical-block li:first-child { border-top: none; padding-top: 0; }
+
+  .curator-quote {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--gray-text);
+    background: var(--purple-bg);
+    padding: 20px 26px;
+    border-radius: 10px;
+    border-left: 4px solid var(--purple-main);
+    font-style: italic;
+  }
+  .curator-quote::before {
+    content: '“';
+    font-size: 36px;
+    color: var(--purple-soft);
+    line-height: 0;
+    vertical-align: -10px;
+    margin-right: 4px;
+  }
+
+  .next-steps {
+    list-style: none;
+    counter-reset: step;
+    padding: 0;
+    margin: 0;
+  }
+  .next-steps li {
+    counter-increment: step;
+    padding: 14px 18px 14px 56px;
+    background: var(--purple-bg);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--gray-text);
+    position: relative;
+  }
+  .next-steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--purple-main);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 13px;
+  }
+
+  .report-footer-note {
+    margin-top: 36px;
+    padding-top: 20px;
+    border-top: 1px solid var(--purple-border);
+    text-align: center;
+    font-size: 12px;
+    color: var(--gray-soft);
+  }
+
+  /* === RESPONSIVE === */
+  @media (max-width: 700px) {
+    .report-modal-body { padding: 20px 14px 60px; }
+    .report-doc { padding: 28px 22px; }
+    .report-title { font-size: 22px; }
+    .report-meta { grid-template-columns: 1fr; }
+    .score-banner { padding: 16px 18px; gap: 14px; flex-wrap: wrap; }
+    .score-pct-big { font-size: 30px; }
+    .miss-block { padding: 16px 18px; }
+    .report-toolbar-inner { padding: 10px 14px; }
+  }
+
+  /* === FINAL === */
+  .final-card {
+    background: white;
+    border: 1px solid var(--purple-border);
+    border-radius: 14px;
+    padding: 26px 28px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-strong);
+  }
+  .final-card h2 {
+    font-size: 13px;
+    text-transform: uppercase;
+    color: var(--purple-main);
+    letter-spacing: 0.5px;
+    margin-bottom: 18px;
+    font-weight: 700;
+  }
+  .final-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .stat-box {
+    background: var(--purple-bg);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-num {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--purple-dark);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--gray-soft);
+    letter-spacing: 0.4px;
+    font-weight: 700;
+  }
+  .verdict-box {
+    padding: 18px 22px;
+    border-radius: 12px;
+    border-left: 4px solid var(--purple-mid);
+    background: var(--purple-light);
+    margin-bottom: 18px;
+  }
+  .verdict-box.verdict-excellent {
+    background: #E8F7EE;
+    border-left-color: var(--green);
+  }
+  .verdict-box.verdict-ok {
+    background: #FFF8E1;
+    border-left-color: var(--yellow);
+  }
+  .verdict-box.verdict-fail {
+    background: #FEEBE7;
+    border-left-color: var(--red);
+  }
+  .verdict-title {
+    font-weight: 800;
+    font-size: 16px;
+    margin-bottom: 6px;
+    color: var(--purple-dark);
+  }
+  .verdict-box.verdict-excellent .verdict-title { color: var(--green); }
+  .verdict-box.verdict-ok .verdict-title { color: #A8842A; }
+  .verdict-box.verdict-fail .verdict-title { color: var(--red); }
+  .verdict-text { font-size: 14px; line-height: 1.5; }
+
+  /* === ACTIONS === */
+  .actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+  .btn {
+    border: none;
+    border-radius: 10px;
+    padding: 12px 22px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-primary {
+    background: var(--purple-main);
+    color: white;
+  }
+  .btn-primary:hover {
+    background: var(--purple-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(108, 61, 224, 0.35);
+  }
+  .btn-secondary {
+    background: white;
+    color: var(--purple-main);
+    border: 1.5px solid var(--purple-main);
+  }
+  .btn-secondary:hover {
+    background: var(--purple-light);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--gray-soft);
+    border: 1.5px solid var(--purple-border);
+  }
+  .btn-ghost:hover { background: var(--gray-bg); color: var(--red); border-color: var(--red); }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--purple-dark);
+    color: white;
+    padding: 12px 22px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 14px;
+    box-shadow: var(--shadow-strong);
+    transition: transform 0.25s ease;
+    z-index: 200;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* === OBJECTIONS TOGGLE === */
+  .objections-toggle {
+    background: var(--purple-light);
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    border: 1px solid var(--purple-border);
+  }
+  .objections-toggle:hover { background: #E5D9F8; }
+  .objections-toggle input { width: 18px; height: 18px; accent-color: var(--purple-main); cursor: pointer; }
+  .objections-toggle label { font-weight: 700; cursor: pointer; }
+
+  /* === FOOTER === */
+  footer {
+    text-align: center;
+    color: var(--gray-soft);
+    font-size: 12px;
+    margin-top: 40px;
+    padding-bottom: 20px;
+  }
+
+  /* === PRINT STYLES === */
+  @media print {
+    body { background: white; padding: 0; margin: 0; }
+    .top-bar, main, .toast { display: none !important; }
+    .report-modal {
+      display: block !important;
+      position: static;
+      background: white;
+      overflow: visible;
+    }
+    .report-modal-toolbar { display: none !important; }
+    .report-modal-body {
+      max-width: 100%;
+      padding: 0;
+    }
+    .report-doc {
+      box-shadow: none;
+      padding: 24px 32px;
+      border-radius: 0;
+    }
+    .miss-block, .critical-block, .curator-quote, .next-steps li, .achievement-list li, .score-banner {
+      break-inside: avoid;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .section-title {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+  }
+
+  /* === RESPONSIVE === */
+  @media (max-width: 700px) {
+    main { padding: 0 14px; }
+    h1.page-title { font-size: 24px; }
+    .meta-grid { grid-template-columns: 1fr; }
+    .final-grid { grid-template-columns: 1fr; }
+    .top-bar-inner { padding: 12px 14px; }
+    .top-bar-title { font-size: 15px; }
+    .stage-header { padding: 14px 16px; }
+    .criterion { padding: 12px 16px; grid-template-columns: 1fr; }
+    .score-buttons { justify-content: flex-end; }
+    .meta-card, .final-card { padding: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="top-bar-inner">
+    <div class="top-bar-title">
+      WowSpeak — Чек-лист контроля качества ВУ
+      <small id="meta-summary">МВУ не указан</small>
+    </div>
+    <div class="top-bar-score">
+      <div class="score-display">
+        <span class="score-num"><span id="score-current">0</span> / <span id="score-max">0</span></span>
+        <span class="score-pct" id="score-pct">0%</span>
+      </div>
+      <span class="verdict-pill verdict-empty" id="verdict-pill">Заполните оценку</span>
+    </div>
+  </div>
+</div>
+
+<main>
+  <h1 class="page-title">Чек-лист контроля качества вводного урока</h1>
+  <p class="page-subtitle">Заполняется проверяющим при просмотре записи. По каждому критерию: <b style="color:var(--green)">✓ было</b> — выполнено по стандарту; <b style="color:var(--red)">✗ не было</b> — не выполнено или сделано не по стандарту; <b>Н/П</b> — пункт неприменим в данном уроке. На каждый «минус» в финальном отчёте МВУ получит конкретную рекомендацию, что делать в следующий раз.</p>
+
+  <!-- META -->
+  <div class="meta-card">
+    <h2>Информация об уроке</h2>
+    <div class="meta-grid">
+      <div class="meta-field">
+        <label>МВУ</label>
+        <input type="text" id="meta-mvu" placeholder="Имя сотрудника" oninput="updateMetaSummary()">
+      </div>
+      <div class="meta-field">
+        <label>Дата урока</label>
+        <input type="date" id="meta-date" onchange="updateMetaSummary()">
+      </div>
+      <div class="meta-field full">
+        <label>Ссылка на запись урока</label>
+        <input type="url" id="meta-link" placeholder="https://...">
+      </div>
+      <div class="meta-field full">
+        <label>Данные от лидоруба были?</label>
+        <select id="meta-leads">
+          <option value="">— выбрать —</option>
+          <option value="yes">Да, анкета заполнена</option>
+          <option value="no">Нет, информации не было</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAGES MOUNT -->
+  <div id="stages-mount"></div>
+
+  <!-- OBJECTIONS TOGGLE -->
+  <label class="objections-toggle">
+    <input type="checkbox" id="objections-occurred" onchange="toggleObjections()">
+    <span>На уроке возникли возражения от клиента (тогда добавится отдельный блок для оценки их отработки)</span>
+  </label>
+
+  <div id="objections-mount"></div>
+
+  <!-- FORBIDDEN -->
+  <div class="forbidden">
+    <div class="forbidden-header">
+      <h3>⚠ Критические нарушения
+        <small>Если отмечено хотя бы одно — урок автоматически считается проведённым не по стандарту, требуется разбор с МВУ.</small>
+      </h3>
+    </div>
+    <div class="forbidden-body" id="forbidden-mount"></div>
+  </div>
+
+  <!-- GENERAL COMMENTS -->
+  <div class="meta-card">
+    <h2>Общий комментарий проверяющего</h2>
+    <div class="meta-field">
+      <textarea id="general-comment" rows="4" placeholder="Сильные стороны, зоны роста, что обсудить с МВУ на разборе"></textarea>
+    </div>
+  </div>
+
+  <!-- RECOMMENDATIONS -->
+  <div class="recs-card" id="recs-card">
+    <div class="recs-header">
+      <h2>📨 Превью обратной связи для МВУ</h2>
+      <div class="recs-subtitle">На каждый «минус» в чек-листе автоматически собирается рекомендация для МВУ. Это то, что попадёт в финальный отчёт при нажатии «Скопировать обратную связь».</div>
+    </div>
+    <div id="recs-mount" class="recs-body">
+      <div class="recs-empty">Рекомендации появятся здесь, когда вы отметите пункты, которые не были выполнены.</div>
+    </div>
+  </div>
+
+  <!-- FINAL SCORE -->
+  <div class="final-card">
+    <h2>Итог</h2>
+    <div class="final-grid">
+      <div class="stat-box">
+        <div class="stat-num" id="final-points">0 / 0</div>
+        <div class="stat-label">Баллы</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="final-percent">0%</div>
+        <div class="stat-label">Процент стандарта</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="final-violations">0</div>
+        <div class="stat-label">Критических нарушений</div>
+      </div>
+    </div>
+
+    <div class="verdict-box verdict-empty" id="final-verdict">
+      <div class="verdict-title">Заполните оценку</div>
+      <div class="verdict-text">Итоговый вердикт появится после того, как проверяющий проставит оценки по этапам.</div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" onclick="openReport()">📨 Сформировать отчёт для МВУ</button>
+      <button class="btn btn-ghost" onclick="resetAll()">Сбросить</button>
+    </div>
+  </div>
+
+  <footer>
+    WowSpeak · Внутренний инструмент QC · Стандарт МВУ 2026
+  </footer>
+</main>
+
+<!-- REPORT MODAL -->
+<div class="report-modal" id="reportModal" aria-hidden="true">
+  <div class="report-modal-toolbar">
+    <div class="report-toolbar-inner">
+      <button class="btn btn-ghost" onclick="closeReport()">← Назад к чек-листу</button>
+      <div class="report-toolbar-actions">
+        <button class="btn btn-secondary" onclick="copyReportFromModal()">📨 Скопировать в буфер</button>
+        <button class="btn btn-primary" onclick="printReport()">📄 Сохранить в PDF</button>
+      </div>
+    </div>
+  </div>
+  <div class="report-modal-body" id="reportModalBody"></div>
+</div>
+
+<div class="toast" id="toast">Скопировано в буфер</div>
+
+<script>
+// ============== DATA ==============
+const STAGES = [
+  {
+    id: 's1', displayNum: 1,
+    title: 'Контакт с родителем до начала урока',
+    criteria: [
+      {
+        text: 'Поздоровался, представился, обозначил структуру встречи',
+        rec: 'Начинайте каждый ВУ с одной и той же конструкции: «Меня зовут ___. Сейчас проведу занятие, посмотрю, что у ребёнка получается, а в конце дам вам конкретную рекомендацию». Это снимает напряжение и сразу задаёт правильное ожидание встречи.',
+      },
+      {
+        text: 'Сказал родителю: «В конце дам конкретную рекомендацию»',
+        rec: 'Эта фраза — ключевая в новом стандарте. Она переводит ВУ из «просто урока» в «диагностику с выводом». Произносите её ОБЯЗАТЕЛЬНО до того, как начать детскую часть, иначе у родителя нет рамки ожидания, и в конце ваша рекомендация прозвучит как продажа.',
+      },
+      {
+        text: 'Использовал данные лидоруба, если они были («правильно ли мне передали…»)',
+        rec: 'Если анкета заполнена — НЕ задавайте 3 базовых вопроса заново, родитель уже на них отвечал. Используйте формулу: «Я перед уроком посмотрела вашу анкету. Правильно ли мне передали, что ___?» Это показывает родителю: в школе есть преемственность, вы готовились к встрече, и вы — не «первый попавшийся менеджер».',
+        allowNA: true,
+      },
+      {
+        text: 'Задал 3 базовых вопроса (цель / прошлый опыт / результат через 2–3 мес.) — или недостающие из них',
+        rec: 'Без понимания цели семьи нельзя дать прицельную рекомендацию в этапе 6. Если данных от лидоруба не было — обязательно задайте все 3 вопроса: цель, прошлый опыт, что будет результатом через 2–3 мес. Если часть ответов уже есть — задайте только недостающие.',
+      },
+      {
+        text: 'Зафиксировал ответы и понимание запроса перед началом квеста',
+        rec: 'Перед стартом квеста зафиксируйте в «Мой класс» цель семьи (одной фразой), основную боль и прошлый опыт. Эти данные нужны вам для точной рекомендации в этапе 6, и без них вы будете «вспоминать» в ходе обратной связи, что снижает уверенность.',
+      },
+    ],
+  },
+  {
+    id: 's2', displayNum: 2,
+    title: 'Правильная рамка урока',
+    criteria: [
+      {
+        text: 'Объявил родителю формат: диагностика + рекомендация в конце',
+        rec: 'Родитель должен чётко услышать формулировку: «Сегодня я проведу занятие в игровом формате. Посмотрю, что ребёнок знает, где зона роста, и в конце дам вам конкретную рекомендацию». Без этой рамки родитель воспринимает встречу как «просто урок».',
+      },
+      {
+        text: 'Дал ребёнку возрастную рамку, не использовал слова «тест» / «экзамен»',
+        rec: 'Слова «тест» и «экзамен» вызывают у ребёнка стресс и портят весь урок. Используйте возрастную формулу: 4–6 — «приключение, не страшно»; 7–9 — «не страшный тест и не экзамен, просто игра»; 10–12 — «не урок и не экзамен, а встреча»; 13+ — «короткая диагностика, без оценок».',
+      },
+    ],
+  },
+  {
+    id: 's4', displayNum: 4,
+    title: 'Обратная связь родителю',
+    criteria: [
+      {
+        text: 'Начал с «что увидел» — конкретные факты, без оценок',
+        rec: 'Не начинайте с общих слов («ребёнок молодец», «сильный», «слабый»). Начинайте с конкретных наблюдений: «Маша спокойно повторяла за мной, путалась во временах, читала медленно, но без ошибок». Конкретика — это то, во что родитель верит.',
+      },
+      {
+        text: 'Объяснил, «что это значит» для родителя',
+        rec: 'Конкретные факты сами по себе ничего не говорят родителю. После каждого наблюдения должно идти объяснение: «Это значит, что ___». Без интерпретации родитель не понимает, плохо это или хорошо, и что с этим делать.',
+      },
+      {
+        text: 'Назвал зону роста без обвинения',
+        rec: 'Зона роста — это не «недостатки» и не «провалы». Не говорите «ребёнок не знает», «он отстаёт». Говорите: «сейчас не освоено», «требует тренировки», «зона роста». Формулировка решает: одно и то же наблюдение можно подать как обвинение или как путь развития.',
+      },
+      {
+        text: 'Дал общий вывод одним предложением',
+        rec: 'После наблюдений и объяснений всегда заканчивайте одной фразой: «Поэтому я бы сказала, что лучший следующий шаг для него — ___». Это мостик к рекомендации (этап 6). Без него обратная связь повисает, и переход к рекомендации звучит резко.',
+      },
+      {
+        text: 'Не использовал слова «способный», «слабый», «отстаёт»',
+        rec: 'Эти слова — запрещённые. Они обижают родителя (ребёнок воспринимается как продолжение себя), сужают перспективу ребёнка и снижают доверие к школе. Используйте: «у ребёнка пока ___», «зона роста», «требует системной работы».',
+      },
+    ],
+  },
+  {
+    id: 's5', displayNum: 5,
+    title: 'Уточнение приоритета родителя',
+    criteria: [
+      {
+        text: 'Спросил, что важнее для семьи (интерес / школа / уверенность)',
+        rec: 'Без этого вопроса вы не знаете, на чём строить рекомендацию. Обязательно произнесите: «Подскажите, для вас сейчас что важнее: чтобы ребёнку стало интересно, чтобы появился результат по школе, или чтобы он стал увереннее говорить?» Эта тройка покрывает 90% запросов.',
+      },
+      {
+        text: 'Спросил про предпочитаемый тип преподавателя (мягкий / структурный)',
+        rec: 'Этот вопрос даёт вам валидацию вашего наблюдения из этапа 3. Если родитель и вы говорите про одного и того же типа — рекомендация будет уверенной. Если расходитесь — это сигнал к более внимательному обсуждению.',
+      },
+      {
+        text: 'При размытом ответе — задал уточняющий вопрос',
+        rec: 'Если родитель отвечает «всё важно» или «не знаю» — задайте уточняющий: «А что для вас будет главным признаком, что обучение идёт хорошо через 2–3 месяца?» Это вытаскивает реальный приоритет за 30 секунд.',
+        allowNA: true,
+      },
+    ],
+  },
+  {
+    id: 's6', displayNum: 6,
+    title: 'Персональная рекомендация',
+    criteria: [
+      {
+        text: 'Произнёс фразу «Я рекомендую вам…»',
+        rec: 'Эта точная формулировка обязательна. Она переводит вас из роли «оператора, который провёл урок» в роль эксперта. Не заменяйте на: «можно посмотреть», «есть варианты», «вы можете выбрать». Уверенная фраза «Я рекомендую» — это то, за что родитель платит.',
+      },
+      {
+        text: 'Дал ОДНУ конкретную рекомендацию (формат + грейд преподавателя)',
+        rec: 'Запрещено давать каталог. Запрещено говорить «у нас 4 пакета». Сначала ОДНА рекомендация — конкретный формат (длительность, частота) и грейд преподавателя. Только если родитель сам спрашивает альтернативы — расскажите. Иначе родитель уйдёт «думать».',
+      },
+      {
+        text: 'Связал рекомендацию с задачей семьи через «потому что…»',
+        rec: 'Каждая рекомендация — это конструкция «Я рекомендую X, потому что Y». Y — это связка с задачей семьи, которую родитель сам назвал. Без этой связки ваша рекомендация выглядит как «продажа», а не как ответ на их запрос.',
+      },
+      {
+        text: 'Назвал грейд преподавателя уверенно, не как «вариант»',
+        rec: 'Перед уроком посмотрите рекомендованный грейд в ТГ-боте. Назовите его как часть рекомендации, не как «вариант на выбор»: «Я рекомендую вам преподавателя категории ___». Если вы говорите «у нас есть разные преподаватели» — родитель воспринимает это как неуверенность.',
+      },
+      {
+        text: 'Не использовал запрещённые формулировки («у нас 4 пакета», «что больше нравится»)',
+        rec: 'Запрещены: «у нас 4 пакета», «какой больше нравится?», «посмотрите на сайте», «выбирайте сами». Эти формулировки переводят выбор обратно на родителя и ломают весь смысл этапа. Если вы их использовали — клиент уйдёт «думать», и конверсия упадёт.',
+      },
+    ],
+  },
+  {
+    id: 's7', displayNum: 7,
+    title: 'Короткая презентация школы',
+    criteria: [
+      {
+        text: 'Уложился в 1–2 минуты',
+        rec: 'Презентация школы — НЕ центр ВУ. Она нужна только для подкрепления вашей рекомендации. Если занимает больше 2 минут — вы потеряете внимание родителя на этапе оффера, и решение будет приниматься в усталом состоянии.',
+      },
+      {
+        text: 'Содержание было связано именно с задачей семьи',
+        rec: 'Не презентуйте «школу в целом». Презентуйте только то, что отвечает на вопрос «почему это сработает у нас под ВАШУ задачу». Под задачу «школа» — расскажите про закрытие пробелов; под задачу «речь» — про разговорные клубы; под задачу «экзамен» — про опыт преподавателей в подготовке.',
+      },
+      {
+        text: 'Не пошёл по слайдам подряд / не перечислил все клубы и активности',
+        rec: 'Слайды по клубам, мастер-классам, читальному клубу, грейдам — это инструмент справки, а не презентации. По ним нельзя идти подряд — это старый сценарий, который ТЗ прямо запрещает. Используйте слайды только как поддержку конкретной рекомендации, по 1 слайду максимум.',
+      },
+    ],
+  },
+  {
+    id: 's8', displayNum: 8,
+    title: 'Оффер',
+    criteria: [
+      {
+        text: 'Назвал формат: продолжительность и частота',
+        rec: 'Оффер должен быть конкретным. Не «индивидуальные занятия», а «индивидуальные 45 минут 2 раза в неделю». Чем точнее формулировка — тем выше доверие. «Каждое уточнение» считывается как уверенность эксперта.',
+      },
+      {
+        text: 'Назвал конкретный пакет (количество уроков)',
+        rec: 'Не «начните с какого-нибудь пакета», а конкретное число уроков: 24, 32 или 48. Только так клиент понимает, во что вкладывается. Без конкретного числа клиент не может принять решение, даже если хочет.',
+      },
+      {
+        text: 'Объяснил, почему именно этот пакет — связь с задачей',
+        rec: 'Каждый пакет должен быть привязан к задаче семьи: «24 урока — это 3 месяца системной работы, и за этот срок мы успеем закрыть пробелы по школе». Без обоснования родитель не понимает, почему именно столько, и предполагает, что вы продаёте «побольше».',
+      },
+      {
+        text: 'Озвучил бонусы пакета',
+        rec: 'Бонусы (бесплатный пробный, бонусный урок в конце абонемента, 3 мес. WowSpace) — это часть оффера, которую вы озвучиваете САМИ. Не оставляйте это «менеджер потом расскажет» или «посмотрите на сайте» — это снижает воспринимаемую ценность.',
+      },
+      {
+        text: 'Сделал мостик к WowSpace, связав с целью семьи (или сознательно не предложил, если не подходит)',
+        rec: 'После базовой рекомендации обязательно подсветите пакет с WowSpace — но только если это связано с целью семьи. Используйте формулу: «Вы сами сказали, что для вас важно ___, и для этой задачи у нас есть пакет с WowSpace в подарок». Если WowSpace под задачу не подходит — лучше не предлагать, иначе считывается как впаривание.',
+        allowNA: true,
+      },
+      {
+        text: 'Озвучил условие 24 часов как фиксацию рекомендации, а не как «скидку дороговатому клиенту»',
+        rec: 'Условие 24 часов — это фиксация рекомендации, а НЕ скидка для возражения «дорого». Озвучьте его сразу, как часть оффера, до того, как родитель скажет «дорого». Если вытаскиваете 5% после возражения — это работает в разы хуже и считывается как уступка.',
+      },
+    ],
+  },
+  {
+    id: 's9', displayNum: 9,
+    title: 'Закрытие в следующий шаг',
+    criteria: [
+      {
+        text: 'Зафиксировал конкретный пакет (формат + кол-во уроков)',
+        rec: 'Не отпускайте клиента в «свободное размышление». Спросите: «Какое количество уроков выбираете — 24, 32 или 48?» Если клиент не готов решить — всё равно зафиксируйте рекомендацию для клоузера, чтобы следующий контакт был не «с нуля».',
+      },
+      {
+        text: 'Не сказал «менеджер вам потом напишет» / «ну подумайте»',
+        rec: 'Эта фраза снимает с вас ответственность за следующий шаг и переводит ВУ обратно в «просто урок». Замените на: «Я зафиксирую за вами рекомендованный вариант и передам коллегам с конкретной рекомендацией, чтобы вам не пришлось снова всё объяснять».',
+      },
+      {
+        text: 'Завершил с конкретным следующим шагом',
+        rec: 'Каждый ВУ заканчивается КОНКРЕТНЫМ следующим шагом: оплата / выставление счёта / звонок клоузера в конкретное время / отправка ссылки на оплату. «Подумайте» — это НЕ следующий шаг, это его отсутствие.',
+      },
+      {
+        text: 'Сделал/упомянул комментарий в «Мой класс» и дашборде',
+        rec: 'После каждого ВУ обязательно: комментарий в «Мой класс» с зафиксированной рекомендацией + запись в дашборд. Если согласие получено — формат «Получил согласие на пакет N, скидка 5%». Если нет — «Не получил согласие, передал клоузеру с рекомендацией ___». Без этого следующий контакт начинается с нуля.',
+      },
+    ],
+  },
+];
+
+const OBJECTIONS_STAGE = {
+  id: 'obj', displayNum: '⚡',
+  title: 'Отработка возражений (если возникли)',
+  criteria: [
+    {
+      text: 'Отработал возражение по предусмотренным скриптам',
+      rec: 'В скрипте есть готовые ответы на 8 типовых возражений (думаю / попробовать / рано / не вижу смысла в клубах / дорого / был негативный опыт / ребёнок не хочет / есть репетитор). Используйте их, не импровизируйте — формулировки выверены и работают лучше любого экспромта.',
+    },
+    {
+      text: 'Не использовал скидку как первый ответ на «дорого»',
+      rec: 'Скидка — НЕ ответ на «дорого». Ответ на «дорого» — это «именно поэтому я и рекомендую только то, что решает вашу задачу, без лишнего». Скидка озвучивается как условие 24 часов в этапе 8, ДО возражения.',
+    },
+    {
+      text: 'Не вступил в спор с родителем',
+      rec: 'Возражение — это не атака, это тревога родителя. Не спорьте, не доказывайте. Используйте формулу: «Понимаю. И именно поэтому ___» — она переводит возражение в аргумент за рекомендацию.',
+    },
+  ],
+};
+
+const FORBIDDEN = [
+  'Шёл по слайдам подряд (клубы → мастер-классы → читальный клуб → …) — старый сценарий',
+  'Озвучил цены до того, как названа рекомендация',
+  'Использовал скидку как ответ на возражение «дорого»',
+  'Завершил ВУ без конкретной рекомендации',
+  'Завершил ВУ без следующего шага',
+  'Использовал запрещённые фразы: «менеджер вам потом всё расскажет», «посмотрите на сайте», «ну подумайте»',
+  'Дал каталог пакетов вместо персональной рекомендации',
+  'Использовал оценочные слова о ребёнке: «способный», «слабый», «отстаёт»',
+];
+
+// ============== STATE ==============
+const state = {}; // { 's1c0': 2, 's1c0_comment': '...', 'obj_c0': 1, 'forbidden_2': true }
+
+// ============== RENDER ==============
+function renderStage(stage, mountId) {
+  const mount = document.getElementById(mountId);
+  const stageDiv = document.createElement('div');
+  stageDiv.className = 'stage';
+  stageDiv.id = `stage-${stage.id}`;
+
+  const stagePrefix = stage.id;
+
+  let html = `
+    <div class="stage-header">
+      <h3><span class="stage-num">${stage.displayNum}</span> ${stage.title}</h3>
+      <span class="stage-subscore" id="${stagePrefix}-subscore">0 / 0</span>
+    </div>
+    <div class="stage-body">
+  `;
+
+  stage.criteria.forEach((c, i) => {
+    const text = c.text;
+    const allowNA = c.allowNA;
+    const key = `${stagePrefix}c${i}`;
+
+    html += `
+      <div class="criterion" data-key="${key}" data-stage="${stagePrefix}">
+        <div>
+          <div class="criterion-text"><span class="num">${i + 1}.</span>${text}</div>
+          <button type="button" class="criterion-comment-toggle" onclick="toggleComment('${key}')">+ комментарий</button>
+        </div>
+        <div class="score-buttons">
+          <button type="button" class="score-btn btn-yes" data-val="1" onclick="setScore('${key}', 1)" title="Было — выполнено по стандарту">✓</button>
+          <button type="button" class="score-btn btn-no" data-val="0" onclick="setScore('${key}', 0)" title="Не было — не выполнено или не по стандарту">✗</button>
+          ${allowNA ? `<button type="button" class="score-btn score-btn-na" data-val="na" onclick="setScore('${key}', 'na')" title="Неприменимо в данном уроке">Н/П</button>` : ''}
+        </div>
+        <div class="criterion-comment" id="comment-${key}">
+          <textarea id="commenttxt-${key}" placeholder="Комментарий проверяющего" oninput="state['${key}_comment'] = this.value; renderRecommendations();"></textarea>
+        </div>
+      </div>
+    `;
+  });
+
+  html += `</div>`;
+  stageDiv.innerHTML = html;
+  mount.appendChild(stageDiv);
+}
+
+function renderForbidden() {
+  const mount = document.getElementById('forbidden-mount');
+  FORBIDDEN.forEach((text, i) => {
+    const id = `forbidden-${i}`;
+    const div = document.createElement('label');
+    div.className = 'forbidden-item';
+    div.id = `${id}-row`;
+    div.innerHTML = `
+      <input type="checkbox" id="${id}" onchange="toggleForbidden(${i})">
+      <span>${text}</span>
+    `;
+    mount.appendChild(div);
+  });
+}
+
+function renderObjections() {
+  const mount = document.getElementById('objections-mount');
+  mount.innerHTML = '';
+  if (!state.objectionsOccurred) return;
+  renderStage(OBJECTIONS_STAGE, 'objections-mount');
+}
+
+// ============== INTERACTIONS ==============
+function setScore(key, val) {
+  state[key] = val;
+  // visual update
+  const buttons = document.querySelectorAll(`.criterion[data-key="${key}"] .score-btn`);
+  buttons.forEach(b => {
+    b.classList.remove('active-0', 'active-1', 'active-na');
+  });
+  const target = document.querySelector(`.criterion[data-key="${key}"] .score-btn[data-val="${val}"]`);
+  if (target) {
+    target.classList.add(val === 'na' ? 'active-na' : `active-${val}`);
+  }
+  recalcAll();
+}
+
+function toggleComment(key) {
+  const c = document.getElementById(`comment-${key}`);
+  c.classList.toggle('open');
+  if (c.classList.contains('open')) {
+    document.getElementById(`commenttxt-${key}`).focus();
+  }
+}
+
+function toggleForbidden(i) {
+  const cb = document.getElementById(`forbidden-${i}`);
+  state[`forbidden_${i}`] = cb.checked;
+  document.getElementById(`forbidden-${i}-row`).classList.toggle('checked', cb.checked);
+  recalcAll();
+}
+
+function toggleObjections() {
+  state.objectionsOccurred = document.getElementById('objections-occurred').checked;
+  // clear objection scores when turning off
+  if (!state.objectionsOccurred) {
+    OBJECTIONS_STAGE.criteria.forEach((_, i) => {
+      delete state[`objc${i}`];
+      delete state[`objc${i}_comment`];
+    });
+  }
+  renderObjections();
+  recalcAll();
+}
+
+function updateMetaSummary() {
+  const mvu = document.getElementById('meta-mvu').value || 'МВУ не указан';
+  const date = document.getElementById('meta-date').value || '';
+  document.getElementById('meta-summary').textContent = date ? `${mvu} · ${date}` : mvu;
+}
+
+// ============== SCORING ==============
+function renderRecommendations() {
+  const mount = document.getElementById('recs-mount');
+  const items = []; // { stageTitle, displayNum, criterionText, recText, reviewerComment }
+
+  // Collect all stages including objections if active
+  const allStages = STAGES.slice();
+  if (state.objectionsOccurred) allStages.push(OBJECTIONS_STAGE);
+
+  allStages.forEach(stage => {
+    stage.criteria.forEach((c, i) => {
+      const key = `${stage.id}c${i}`;
+      if (state[key] === 0) {
+        items.push({
+          stageTitle: stage.title,
+          displayNum: stage.displayNum,
+          criterionText: c.text,
+          recText: c.rec,
+          reviewerComment: state[`${key}_comment`] || '',
+        });
+      }
+    });
+  });
+
+  if (items.length === 0) {
+    mount.innerHTML = '<div class="recs-empty">Рекомендации появятся здесь, когда вы отметите пункты, которые не были выполнены.</div>';
+    return;
+  }
+
+  // Group by stage
+  let html = '';
+  let currentStage = null;
+  items.forEach(item => {
+    const stageKey = `${item.displayNum}-${item.stageTitle}`;
+    if (stageKey !== currentStage) {
+      currentStage = stageKey;
+      html += `<div class="rec-stage-title">Этап ${item.displayNum} · ${item.stageTitle}</div>`;
+    }
+    html += `
+      <div class="rec-item">
+        <div class="rec-criterion">
+          <span class="rec-cross">✗</span>
+          <span>${item.criterionText}</span>
+        </div>
+        <div class="rec-text">${item.recText}</div>
+        ${item.reviewerComment ? `<div class="rec-comment-from-reviewer"><strong>Заметка проверяющего:</strong> ${escapeHtml(item.reviewerComment)}</div>` : ''}
+      </div>
+    `;
+  });
+
+  mount.innerHTML = html;
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function calcStageScore(stagePrefix, criteriaCount) {
+  let earned = 0, max = 0;
+  for (let i = 0; i < criteriaCount; i++) {
+    const v = state[`${stagePrefix}c${i}`];
+    if (v === undefined || v === 'na') continue;
+    earned += v;
+    max += 1;
+  }
+  return { earned, max };
+}
+
+function recalcAll() {
+  let totalEarned = 0, totalMax = 0;
+
+  STAGES.forEach(s => {
+    const stagePrefix = s.id;
+    const { earned, max } = calcStageScore(stagePrefix, s.criteria.length);
+    document.getElementById(`${stagePrefix}-subscore`).textContent = `${earned} / ${max}`;
+    totalEarned += earned;
+    totalMax += max;
+  });
+
+  if (state.objectionsOccurred) {
+    const { earned, max } = calcStageScore('obj', OBJECTIONS_STAGE.criteria.length);
+    const sub = document.getElementById('obj-subscore');
+    if (sub) sub.textContent = `${earned} / ${max}`;
+    totalEarned += earned;
+    totalMax += max;
+  }
+
+  renderRecommendations();
+
+  const violations = FORBIDDEN.reduce((a, _, i) => a + (state[`forbidden_${i}`] ? 1 : 0), 0);
+
+  // Update displays
+  const pct = totalMax > 0 ? Math.round((totalEarned / totalMax) * 100) : 0;
+  document.getElementById('score-current').textContent = totalEarned;
+  document.getElementById('score-max').textContent = totalMax;
+  document.getElementById('score-pct').textContent = totalMax > 0 ? pct + '%' : '—';
+  document.getElementById('final-points').textContent = `${totalEarned} / ${totalMax}`;
+  document.getElementById('final-percent').textContent = totalMax > 0 ? pct + '%' : '—';
+  document.getElementById('final-violations').textContent = violations;
+
+  // Verdict
+  const pill = document.getElementById('verdict-pill');
+  const box = document.getElementById('final-verdict');
+  pill.classList.remove('verdict-empty', 'verdict-excellent', 'verdict-ok', 'verdict-fail');
+  box.classList.remove('verdict-empty', 'verdict-excellent', 'verdict-ok', 'verdict-fail');
+
+  // Calculate total possible criteria across stages
+  let totalCriteriaCount = 0;
+  STAGES.forEach(s => totalCriteriaCount += s.criteria.length);
+  if (state.objectionsOccurred) totalCriteriaCount += OBJECTIONS_STAGE.criteria.length;
+
+  // Don't show verdict if less than 50% of criteria have been answered
+  const completionRatio = totalMax / totalCriteriaCount;
+  const showVerdict = completionRatio >= 0.5 || violations > 0;
+
+  if (totalMax === 0) {
+    pill.classList.add('verdict-empty');
+    pill.textContent = 'Заполните оценку';
+    box.classList.add('verdict-empty');
+    box.querySelector('.verdict-title').textContent = 'Заполните оценку';
+    box.querySelector('.verdict-text').textContent = 'Итоговый вердикт появится после того, как проверяющий проставит оценки по этапам.';
+    return;
+  }
+
+  if (!showVerdict) {
+    pill.classList.add('verdict-empty');
+    pill.textContent = `${totalEarned} / ${totalMax} · продолжайте`;
+    box.classList.add('verdict-empty');
+    box.querySelector('.verdict-title').textContent = 'Чек-лист в процессе заполнения';
+    box.querySelector('.verdict-text').textContent = 'Итоговый вердикт появится, когда вы проставите оценки минимум по половине критериев.';
+    return;
+  }
+
+  if (violations > 0) {
+    pill.classList.add('verdict-fail');
+    pill.textContent = `Не по стандарту · ${violations} нарушение(й)`;
+    box.classList.add('verdict-fail');
+    box.querySelector('.verdict-title').textContent = `Урок не по стандарту — ${violations} критическое нарушение(й)`;
+    box.querySelector('.verdict-text').textContent = 'Урок автоматически отнесён к категории «не по стандарту» вне зависимости от баллов. Обязателен разбор с МВУ по конкретным нарушениям и пересмотр методики проведения.';
+    return;
+  }
+
+  if (pct >= 90) {
+    pill.classList.add('verdict-excellent'); pill.textContent = `Отлично · ${pct}%`;
+    box.classList.add('verdict-excellent');
+    box.querySelector('.verdict-title').textContent = 'Отлично — урок проведён по стандарту';
+    box.querySelector('.verdict-text').textContent = 'МВУ уверенно следует регламенту и доводит клиента до конкретной рекомендации. Можно выделить как образцовый кейс на разборе с командой.';
+  } else if (pct >= 75) {
+    pill.classList.add('verdict-ok'); pill.textContent = `Допустимо · ${pct}%`;
+    box.classList.add('verdict-ok');
+    box.querySelector('.verdict-title').textContent = 'Допустимо — есть зоны роста';
+    box.querySelector('.verdict-text').textContent = 'Базовая логика регламента соблюдена, но отдельные этапы выполнены неуверенно или не полностью. Рекомендуется обсудить конкретные пункты с оценкой 0 или 1.';
+  } else if (pct >= 60) {
+    pill.classList.add('verdict-fail'); pill.textContent = `Не по стандарту · ${pct}%`;
+    box.classList.add('verdict-fail');
+    box.querySelector('.verdict-title').textContent = 'Не по стандарту — требуется доработка';
+    box.querySelector('.verdict-text').textContent = 'Регламент проведён частично. Нужен разбор с МВУ по проседающим этапам и повторное наблюдение в ближайшее время.';
+  } else {
+    pill.classList.add('verdict-fail'); pill.textContent = `Не по стандарту · ${pct}%`;
+    box.classList.add('verdict-fail');
+    box.querySelector('.verdict-title').textContent = 'Урок не по стандарту';
+    box.querySelector('.verdict-text').textContent = 'Большая часть регламента не выполнена. Обязателен полноценный разбор с МВУ, повторное обучение и наблюдение следующего ВУ.';
+  }
+}
+
+// ============== REPORT MODAL ==============
+function buildReportData() {
+  const mvu = document.getElementById('meta-mvu').value.trim();
+  const dateRaw = document.getElementById('meta-date').value;
+  const link = document.getElementById('meta-link').value.trim();
+
+  const months = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+  let dateFormatted = '';
+  if (dateRaw) {
+    const [y, m, d] = dateRaw.split('-');
+    dateFormatted = `${parseInt(d)} ${months[parseInt(m) - 1]} ${y} г.`;
+  }
+
+  const totalEarned = +document.getElementById('score-current').textContent;
+  const totalMax = +document.getElementById('score-max').textContent;
+  const pct = totalMax > 0 ? Math.round((totalEarned / totalMax) * 100) : 0;
+  const violations = FORBIDDEN.filter((_, i) => state[`forbidden_${i}`]);
+
+  let verdictLabel, bannerClass;
+  if (violations.length > 0) {
+    verdictLabel = 'Урок проведён не по стандарту (есть критические нарушения)';
+    bannerClass = 'banner-fail';
+  } else if (pct >= 90) {
+    verdictLabel = 'Урок проведён по стандарту';
+    bannerClass = 'banner-excellent';
+  } else if (pct >= 75) {
+    verdictLabel = 'Базовая логика регламента соблюдена, есть зоны роста';
+    bannerClass = 'banner-ok';
+  } else if (pct >= 60) {
+    verdictLabel = 'Урок проведён не по стандарту, требуется доработка';
+    bannerClass = 'banner-fail';
+  } else {
+    verdictLabel = 'Урок проведён не по стандарту';
+    bannerClass = 'banner-fail';
+  }
+
+  const allStages = STAGES.slice();
+  if (state.objectionsOccurred) allStages.push(OBJECTIONS_STAGE);
+
+  const passStages = [];
+  const issuesByStage = [];
+  allStages.forEach(stage => {
+    const misses = [];
+    let hasAnyScore = false;
+    let allPass = true;
+    stage.criteria.forEach((c, i) => {
+      const v = state[`${stage.id}c${i}`];
+      if (v !== undefined) hasAnyScore = true;
+      if (v === 0) {
+        misses.push({ c, comment: state[`${stage.id}c${i}_comment`] });
+        allPass = false;
+      }
+    });
+    if (hasAnyScore && allPass && misses.length === 0) passStages.push(stage);
+    if (misses.length > 0) issuesByStage.push({ stage, misses });
+  });
+
+  const general = document.getElementById('general-comment').value.trim();
+
+  return { mvu, dateFormatted, link, pct, totalMax, verdictLabel, bannerClass, passStages, issuesByStage, violations, general };
+}
+
+function renderReportModal() {
+  const data = buildReportData();
+  const body = document.getElementById('reportModalBody');
+
+  let html = '<div class="report-doc">';
+
+  // Title & subtitle
+  html += '<div class="report-title">Обратная связь по вводному уроку</div>';
+  html += '<div class="report-subtitle">Внутренний инструмент контроля качества WowSpeak</div>';
+
+  // Meta info
+  html += '<div class="report-meta">';
+  if (data.mvu) html += `<div><strong>МВУ:</strong> ${escapeHtml(data.mvu)}</div>`;
+  if (data.dateFormatted) html += `<div><strong>Дата урока:</strong> ${escapeHtml(data.dateFormatted)}</div>`;
+  if (data.link) html += `<div class="full"><strong>Запись:</strong> <a href="${escapeHtml(data.link)}" target="_blank">${escapeHtml(data.link)}</a></div>`;
+  html += '</div>';
+
+  // Score banner
+  if (data.totalMax > 0) {
+    html += `<div class="score-banner ${data.bannerClass}">
+      <div class="score-pct-big">${data.pct}%</div>
+      <div class="score-verdict-text">${escapeHtml(data.verdictLabel)}</div>
+    </div>`;
+  }
+
+  // Intro
+  html += '<p class="report-intro">Ниже — обратная связь по уроку. На каждый минус — конкретная рекомендация: что и как изменить в следующий раз.</p>';
+
+  // What went well
+  if (data.passStages.length > 0) {
+    html += '<section class="report-section">';
+    html += '<h2 class="section-title title-good"><span>✅</span> Что было по стандарту</h2>';
+    html += '<ul class="achievement-list">';
+    data.passStages.forEach(s => {
+      const label = s.id === 'obj' ? 'Отработка возражений — выполнена по регламенту'
+        : `Этап ${s.displayNum}. ${s.title} — выполнено по регламенту`;
+      html += `<li>${escapeHtml(label)}</li>`;
+    });
+    html += '</ul></section>';
+  }
+
+  // Areas for growth
+  if (data.issuesByStage.length > 0) {
+    html += '<section class="report-section">';
+    html += '<h2 class="section-title title-growth"><span>📍</span> Зоны роста и рекомендации</h2>';
+    data.issuesByStage.forEach(({ stage, misses }) => {
+      const stageLabel = stage.id === 'obj' ? 'Отработка возражений' : `Этап ${stage.displayNum} — ${stage.title}`;
+      misses.forEach(({ c, comment }) => {
+        html += '<div class="miss-block">';
+        html += `<div class="miss-stage-label">${escapeHtml(stageLabel)}</div>`;
+        html += `<div class="miss-row">
+          <div class="miss-label label-issue"><span>✗</span> Что не было выполнено</div>
+          <div class="miss-text miss-text-issue">${escapeHtml(c.text)}</div>
+        </div>`;
+        html += `<div class="miss-row">
+          <div class="miss-label label-rec"><span>→</span> Что делать в следующий раз</div>
+          <div class="miss-text">${escapeHtml(c.rec)}</div>
+        </div>`;
+        if (comment) {
+          html += `<div class="miss-comment-block">
+            <div class="miss-label label-note"><span>💬</span> Конкретно по этому уроку проверяющий отметил</div>
+            <div class="miss-text">${escapeHtml(comment)}</div>
+          </div>`;
+        }
+        html += '</div>';
+      });
+    });
+    html += '</section>';
+  }
+
+  // Critical violations
+  if (data.violations.length > 0) {
+    html += '<section class="report-section">';
+    html += '<h2 class="section-title title-critical"><span>⚠</span> Критические нарушения</h2>';
+    html += '<div class="critical-block">';
+    html += '<div class="critical-intro">Это нарушения, которые автоматически переводят урок в категорию «не по стандарту». На разборе с куратором обязательно обсуди:</div>';
+    html += '<ul>';
+    data.violations.forEach(v => html += `<li>${escapeHtml(v)}</li>`);
+    html += '</ul></div></section>';
+  }
+
+  // Curator comment
+  if (data.general) {
+    html += '<section class="report-section">';
+    html += '<h2 class="section-title title-curator"><span>💬</span> Комментарий куратора</h2>';
+    html += `<blockquote class="curator-quote">${escapeHtml(data.general)}</blockquote>`;
+    html += '</section>';
+  }
+
+  // Next steps
+  html += '<section class="report-section">';
+  html += '<h2 class="section-title">Что делать дальше</h2>';
+  html += '<ol class="next-steps">';
+  if (data.issuesByStage.length === 0 && data.violations.length === 0) {
+    html += '<li>Урок проведён по стандарту — продолжай в том же духе.</li>';
+    html += '<li>На ближайшем разборе можем обсудить, как удерживать этот уровень стабильно.</li>';
+  } else {
+    html += '<li>Внимательно прочитай рекомендации выше — они привязаны к конкретным этапам, где у тебя сейчас есть зона роста.</li>';
+    html += '<li>На ближайшем ВУ обрати особое внимание на эти этапы и попробуй применить указанные формулировки.</li>';
+    if (data.violations.length > 0) {
+      html += '<li>По критическим нарушениям — обязательно обсуди с куратором до следующего ВУ.</li>';
+    }
+    html += '<li>Если что-то непонятно или есть вопросы — напиши куратору.</li>';
+  }
+  html += '</ol></section>';
+
+  html += '<div class="report-footer-note">WowSpeak · Внутренний инструмент контроля качества · Стандарт МВУ 2026</div>';
+  html += '</div>';
+
+  body.innerHTML = html;
+}
+
+function openReport() {
+  // Validate at least some scoring is done
+  const totalMax = +document.getElementById('score-max').textContent;
+  if (totalMax === 0) {
+    showToast('Сначала проставьте оценки по этапам');
+    return;
+  }
+  renderReportModal();
+  document.getElementById('reportModal').classList.add('open');
+  document.body.classList.add('report-open');
+  // Scroll modal to top
+  document.getElementById('reportModal').scrollTop = 0;
+}
+
+function closeReport() {
+  document.getElementById('reportModal').classList.remove('open');
+  document.body.classList.remove('report-open');
+}
+
+function printReport() {
+  window.print();
+}
+
+function copyReportFromModal() {
+  copyReport();
+}
+
+// Close modal on Escape
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && document.getElementById('reportModal').classList.contains('open')) {
+    closeReport();
+  }
+});
+
+// ============== EXPORT ==============
+function copyReport() {
+  const lines = [];
+  const mvu = document.getElementById('meta-mvu').value.trim();
+  const dateRaw = document.getElementById('meta-date').value;
+  const link = document.getElementById('meta-link').value.trim();
+
+  // Format date as "25 апреля 2026 г."
+  const months = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+  let dateFormatted = '';
+  if (dateRaw) {
+    const [y, m, d] = dateRaw.split('-');
+    dateFormatted = `${parseInt(d)} ${months[parseInt(m) - 1]} ${y} г.`;
+  }
+
+  // Calculate totals
+  const totalEarned = +document.getElementById('score-current').textContent;
+  const totalMax = +document.getElementById('score-max').textContent;
+  const pct = totalMax > 0 ? Math.round((totalEarned / totalMax) * 100) : 0;
+  const verdictPill = document.getElementById('verdict-pill').textContent;
+  const violations = FORBIDDEN.filter((_, i) => state[`forbidden_${i}`]);
+
+  // Compute verdict label without the percentage tail
+  let verdictLabel;
+  if (violations.length > 0) verdictLabel = 'Урок проведён не по стандарту (есть критические нарушения)';
+  else if (pct >= 90) verdictLabel = 'Урок проведён по стандарту';
+  else if (pct >= 75) verdictLabel = 'Базовая логика регламента соблюдена, есть зоны роста';
+  else if (pct >= 60) verdictLabel = 'Урок проведён не по стандарту, требуется доработка';
+  else verdictLabel = 'Урок проведён не по стандарту';
+
+  // Identify "all-pass" stages (everything is ✓ or N/A, nothing ✗) and stages with misses
+  const allStages = STAGES.slice();
+  if (state.objectionsOccurred) allStages.push(OBJECTIONS_STAGE);
+
+  const passStages = [];
+  const issuesByStage = []; // { stage, misses: [{c, comment}] }
+
+  allStages.forEach(stage => {
+    const misses = [];
+    let hasAnyScore = false;
+    let allPass = true;
+    stage.criteria.forEach((c, i) => {
+      const v = state[`${stage.id}c${i}`];
+      if (v !== undefined) hasAnyScore = true;
+      if (v === 0) {
+        misses.push({ c, comment: state[`${stage.id}c${i}_comment`] });
+        allPass = false;
+      }
+    });
+    if (hasAnyScore && allPass && misses.length === 0) passStages.push(stage);
+    if (misses.length > 0) issuesByStage.push({ stage, misses });
+  });
+
+  // ====== HEADER ======
+  lines.push('ОБРАТНАЯ СВЯЗЬ ПО ВВОДНОМУ УРОКУ');
+  lines.push('━'.repeat(45));
+  if (mvu) lines.push(`МВУ: ${mvu}`);
+  if (dateFormatted) lines.push(`Дата урока: ${dateFormatted}`);
+  if (link) lines.push(`Запись: ${link}`);
+  lines.push('');
+  lines.push(`Итог: ${pct}% — ${verdictLabel}`);
+  lines.push('');
+  lines.push('Ниже — обратная связь по уроку. На каждый минус — конкретная');
+  lines.push('рекомендация: что и как изменить в следующий раз.');
+  lines.push('');
+
+  // ====== WHAT WENT WELL ======
+  if (passStages.length > 0) {
+    lines.push('━'.repeat(45));
+    lines.push('✅ ЧТО БЫЛО ПО СТАНДАРТУ');
+    lines.push('━'.repeat(45));
+    lines.push('');
+    passStages.forEach(s => {
+      const isObjections = s.id === 'obj';
+      const label = isObjections ? 'Отработка возражений' : `Этап ${s.displayNum}. ${s.title}`;
+      lines.push(`• ${label} — выполнено по регламенту`);
+    });
+    lines.push('');
+  }
+
+  // ====== AREAS FOR GROWTH ======
+  if (issuesByStage.length > 0) {
+    lines.push('━'.repeat(45));
+    lines.push('📍 ЗОНЫ РОСТА И РЕКОМЕНДАЦИИ');
+    lines.push('━'.repeat(45));
+    lines.push('');
+
+    issuesByStage.forEach(({ stage, misses }, stageIdx) => {
+      const isObjections = stage.id === 'obj';
+      const stageLabel = isObjections
+        ? 'ОТРАБОТКА ВОЗРАЖЕНИЙ'
+        : `ЭТАП ${stage.displayNum} — ${stage.title.toUpperCase()}`;
+      lines.push(stageLabel);
+      lines.push('');
+
+      misses.forEach(({ c, comment }, missIdx) => {
+        lines.push(`✗ Что не было выполнено:`);
+        lines.push(`   ${c.text}`);
+        lines.push('');
+        lines.push(`→ Что делать в следующий раз:`);
+        // Wrap recommendation text, indenting subsequent lines
+        const wrapped = wrapText(c.rec, 70);
+        wrapped.forEach(line => lines.push(`   ${line}`));
+        if (comment) {
+          lines.push('');
+          lines.push(`💬 Конкретно по этому уроку проверяющий отметил:`);
+          const wrappedC = wrapText(comment, 70);
+          wrappedC.forEach(line => lines.push(`   ${line}`));
+        }
+        if (missIdx < misses.length - 1) lines.push('');
+      });
+      if (stageIdx < issuesByStage.length - 1) {
+        lines.push('');
+        lines.push('');
+      }
+    });
+    lines.push('');
+  }
+
+  // ====== CRITICAL VIOLATIONS ======
+  if (violations.length > 0) {
+    lines.push('━'.repeat(45));
+    lines.push('⚠ КРИТИЧЕСКИЕ НАРУШЕНИЯ');
+    lines.push('━'.repeat(45));
+    lines.push('');
+    lines.push('Это нарушения, которые автоматически переводят урок в категорию');
+    lines.push('«не по стандарту». На разборе с куратором обязательно обсуди:');
+    lines.push('');
+    violations.forEach(v => {
+      const wrapped = wrapText(v, 65);
+      lines.push(`❌ ${wrapped[0]}`);
+      for (let i = 1; i < wrapped.length; i++) lines.push(`   ${wrapped[i]}`);
+    });
+    lines.push('');
+  }
+
+  // ====== REVIEWER COMMENT ======
+  const general = document.getElementById('general-comment').value.trim();
+  if (general) {
+    lines.push('━'.repeat(45));
+    lines.push('💬 КОММЕНТАРИЙ КУРАТОРА');
+    lines.push('━'.repeat(45));
+    lines.push('');
+    const wrapped = wrapText(general, 70);
+    wrapped.forEach(line => lines.push(line));
+    lines.push('');
+  }
+
+  // ====== NEXT STEPS ======
+  lines.push('━'.repeat(45));
+  lines.push('ЧТО ДЕЛАТЬ ДАЛЬШЕ');
+  lines.push('━'.repeat(45));
+  lines.push('');
+  if (issuesByStage.length === 0 && violations.length === 0) {
+    lines.push('1. Урок проведён по стандарту — продолжай в том же духе.');
+    lines.push('2. На ближайшем разборе можем обсудить, как удерживать');
+    lines.push('   этот уровень стабильно.');
+  } else {
+    lines.push('1. Внимательно прочитай рекомендации выше — они привязаны');
+    lines.push('   к конкретным этапам, где у тебя сейчас есть зона роста.');
+    lines.push('2. На ближайшем ВУ обрати особое внимание на эти этапы и');
+    lines.push('   попробуй применить указанные формулировки.');
+    if (violations.length > 0) {
+      lines.push('3. По критическим нарушениям — обязательно обсуди с куратором');
+      lines.push('   до следующего ВУ.');
+      lines.push('4. Если что-то непонятно или есть вопросы — напиши куратору.');
+    } else {
+      lines.push('3. Если что-то непонятно или есть вопросы — напиши куратору.');
+    }
+  }
+  lines.push('');
+
+  const text = lines.join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('Обратная связь скопирована в буфер');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('Обратная связь скопирована в буфер');
+  });
+}
+
+// Simple word-wrap that preserves word boundaries
+function wrapText(text, width) {
+  if (!text) return [''];
+  const words = text.split(/\s+/);
+  const lines = [];
+  let current = '';
+  for (const word of words) {
+    if (current.length === 0) {
+      current = word;
+    } else if (current.length + 1 + word.length <= width) {
+      current += ' ' + word;
+    } else {
+      lines.push(current);
+      current = word;
+    }
+  }
+  if (current) lines.push(current);
+  return lines;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function resetAll() {
+  if (!confirm('Очистить весь чек-лист? Все оценки и комментарии будут удалены.')) return;
+  for (const k in state) delete state[k];
+  document.querySelectorAll('input, textarea, select').forEach(el => {
+    if (el.type === 'checkbox') el.checked = false;
+    else el.value = '';
+  });
+  document.querySelectorAll('.score-btn').forEach(b => {
+    b.classList.remove('active-0', 'active-1', 'active-na');
+  });
+  document.querySelectorAll('.criterion-comment').forEach(c => c.classList.remove('open'));
+  document.querySelectorAll('.forbidden-item').forEach(r => r.classList.remove('checked'));
+  document.getElementById('objections-mount').innerHTML = '';
+  state.objectionsOccurred = false;
+  updateMetaSummary();
+  recalcAll();
+}
+
+// ============== INIT ==============
+STAGES.forEach(s => renderStage(s, 'stages-mount'));
+renderForbidden();
+recalcAll();
+</script>
+</body>
+</html>
